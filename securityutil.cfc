@@ -32,7 +32,7 @@
 			<cfelse>
 				<cfset variables.esapi = CreateObject("java", "org.owasp.esapi.ESAPI")>
 			</cfif>
-			<cfset varaibles.inited = true>
+			<cfset variables.inited = true>
 			<cfcatch>
 				<cfrethrow>
 				<cfthrow message="Unable to leverage ESAPI, please make sure you have applied all security patches, or that ESAPI jar files are part of the classpath." detail="#XmlFormat(cfcatch.message)# -- #XmlFormat(cfcatch.detail)#">
@@ -115,7 +115,7 @@
 	</cffunction>
 	
 	<cffunction name="assertInit" returntype="void" output="false" access="package">
-		<cfif NOT varaibles.inited>
+		<cfif NOT variables.inited>
 			<cfthrow message="You must call init() no securityutil before calling functions in it." type="foundeo.securityutil.noinit">
 		</cfif>
 	</cffunction>
