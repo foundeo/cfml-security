@@ -116,7 +116,7 @@
 	
 	<cffunction name="assertInit" returntype="void" output="false" access="package">
 		<cfif NOT variables.inited>
-			<cfthrow message="You must call init() no securityutil before calling functions in it." type="foundeo.securityutil.noinit">
+			<cfthrow message="You must call init() on securityutil before calling functions in it." type="foundeo.securityutil.noinit">
 		</cfif>
 	</cffunction>
 	
