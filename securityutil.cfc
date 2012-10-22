@@ -72,6 +72,18 @@
 		</cfif>
 	</cffunction>
 	
+	<cffunction name="canonicalize" output="false" hint="Runs the ESAPI canonicalize method using either CFs builtin or falls back on java.">
+		<cfargument name="input" 															hint="The string to encode.">
+		<cfargument name="restrictMultiple" type="boolean" required="true" default="false" 	hint="If set to true, multiple encoding is restricted.">
+		<cfargument name="restrictMixed" 	type="boolean" required="true" default="false"	hint="If set to true, mixed encoding is restricted.">
+		<cfif variables.esapiBuiltin>
+			<cfreturn canonicalize(arguments.input, arguments.restrictMultiple, arguments.restrictMixed)>
+		<cfelse>
+			<cfset assertInit()>
+			<cfreturn variables.esapi.encoder().canonicalize(arguments.input)>	
+		</cfif>
+	</cffunction>
+	
 	<cffunction name="encodeHTML" output="false" hint="Runs the ESAPI encodeForHTML method using either CFs builtin or falls back on java.">
 		<cfargument name="input" hint="Currently supports string input but eventually it could operate on an entire data structure at once, eg struct query">
 		<cfif variables.esapiBuiltin>
