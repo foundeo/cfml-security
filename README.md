@@ -1,7 +1,7 @@
-CFML Security Tools
+CFML Security Utilities
 ===================
 
-This repository will contain some security tools / utilities for CFML (ColdFusion) developers.
+This repository contains some security utilities for CFML (ColdFusion) developers.
 
 ## Example Usage
 
@@ -21,3 +21,36 @@ Copy the `securityutil.cfc` file into your project and then:
 	
 </cfoutput>
 ```
+
+### ScrubHTML
+
+The `scrubHTML` function has accepts a struct of tag names of which to allow. If for example you 
+pass in an empty struct it would strip all tags. When a stray `<` or `>` is encountered it is converted
+into a HTML entity, for example: `&lt;`
+
+Here's a simple set of tag rules which will allow certain tags but will ensure that they do not have any attributes:
+
+```cfm
+<cfset tagRules = {div={},ul={},li={}}>
+```
+
+So for example an input like this:
+```cfm
+<div id="foo"><ul><li>One</li></div>
+```
+
+When passed to this code:
+
+```cfm
+securityUtil.scrubHTML(form.html, {div={},ul={},li={}})
+```
+
+Will output:
+
+```cfm
+<div><ul><li>One</li></div>
+```
+
+
+
+ 
