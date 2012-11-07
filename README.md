@@ -24,7 +24,7 @@ Copy the `securityutil.cfc` file into your project and then:
 
 ### ScrubHTML
 
-The `scrubHTML` function has accepts a struct of tag names of which to allow. If for example you 
+The `scrubHTML` function accepts a struct of tag rules of which to allow. If for example you 
 pass in an empty struct it would strip all tags. When a stray `<` or `>` is encountered it is converted
 into a HTML entity, for example: `&lt;`
 
