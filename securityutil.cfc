@@ -114,6 +114,177 @@
 		</cfif>
 	</cffunction>
 	
+	<cffunction name="scrubHTML" output="false" hint="Removes any non-allowed HTML tags or attributes from an input string.">
+		<cfargument name="in">
+		<cfargument name="tags" default="#StructNew()#">
+		<cfset var inLen = Len(arguments.in)>
+		<cfset var i = 0>
+		<cfset var c = "">
+		<cfset var out = CreateObject("java", "java.lang.StringBuffer").init(inLen)>
+		<cfset var inTag = false>
+		<cfset var tag = "">
+		<cfset var tagName = "">
+		<cfset var next = "">
+		<cfset var endTag = false>
+		<cfset var attrName = "">
+		<cfset var attrValue = "">
+		<cfset var tagAllowed = false>
+		<cfset var inAttributeName = false>
+		<cfset var inAttributeValue = false>
+		<cfset var attr = "">
+		<cfset var singletonTag = false>
+		<cfloop from="1" to="#inLen#" index="i">
+			<cfset c = Mid(arguments.in, i, 1)>
+			<cfif i LT inLen>
+				<cfset next = Mid(arguments.in, i+1, 1)>
+			<cfelse>
+				<!--- end of string --->
+				<cfset next = "">
+			</cfif>
+			<cfif NOT inTag>
+				<cfif c IS "<">
+					<!--- the next char must be a-z or / if it is a HTML tag --->
+					<cfif next IS "/" OR (Asc(LCase(next)) GTE 97 AND Asc(LCase(next)) LTE 122)>
+						<cfset inTag = true>
+						<cfset endTag = next IS "/">
+						<cfset tag = "">
+						<cfset tagName = "">
+						<cfset tagAllowed = false>
+						<cfset inAttributeName = false>
+						<cfset inAttributeValue = false>
+						<cfset singletonTag = false>
+					<cfelse>
+						<cfset out.append("&lt;")>
+					</cfif>
+				<cfelseif c IS ">">   
+					<cfset out.append("&gt;")>
+				<cfelse>
+					<cfset out.append(c)>
+				</cfif>
+			<cfelse>
+				<!--- inside of a tag --->
+				<cfif c IS ">">
+					<!--- reached the end of the tag --->
+					<cfset inTag = false>
+					<cfif NOT Len(tagName)>
+						<cfset tagName = tag>
+						<cfset tagAllowed = StructKeyExists(arguments.tags, tagName)>
+					</cfif>
+					<cfif tagAllowed>
+						<cfif IsStruct(attr) AND NOT StructIsEmpty(attr)>
+							<cfloop list="#StructKeyList(attr)#" index="attrName">
+								<cfif StructKeyExists(arguments.tags[tagName], attrName)>
+									<cfif arguments.tags[tagName][attrName] IS "empty">
+										<cfset tag = tag & " " & attrName>
+									<cfelseif arguments.tags[tagName][attrName] IS "*">
+										<!--- allow anything in the attribute value --->
+										<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
+									<cfelseif arguments.tags[tagName][attrName] IS "uri">
+										<cfif ReFind("^/[a-zA-Z0-9%_.?/&=-]*$", attr[attrName]) OR ReFind("^[a-zA-Z0-9%_.?/&=-]+$", attr[attrName])>
+											<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
+										</cfif>
+									<cfelseif arguments.tags[tagName][attrName] IS "url">
+										<cfif ReFind("^https?://[a-zA-Z0-9.-]+[a-zA-Z0-9%_.?/&=-]*$", attr[attrName]) OR ReFind("^[a-zA-Z0-9%_.?/&=-]+$", attr[attrName])>
+											<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
+										</cfif>
+									<cfelseif Left(arguments.tags[tagName][attrName], 6) IS "match:">
+										<cfif ReFind("^"&Right(arguments.tags[tagName][attrName], Len(arguments.tags[tagName][attrName])-6) & "$", attr[attrName])>
+											<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">	
+										</cfif>
+									<cfelseif Left(arguments.tags[tagName][attrName], 7) IS "remove:">
+										<cfset attrValue = ReReplace(attr[attrName], Right(arguments.tags[tagName][attrName], Len(arguments.tags[tagName][attrName])-7), "", "ALL")>
+										<cfif Len(attrValue)>
+											<cfset tag = tag & " " & attrName & "=""" & attrValue & """">
+										</cfif>
+									<cfelseif ReFind(arguments.tags[tagName][attrName], attr[attrName])>
+										
+									</cfif>
+								</cfif>
+							</cfloop>
+						</cfif>
+						<cfset out.append("<")>
+						<cfif endTag>
+							<cfset out.append("/")>
+						</cfif>
+						<cfset out.append(tag)>
+						<cfif singletonTag>
+							<cfset out.append(" /")>
+						</cfif>
+						<cfset out.append(">")>
+					</cfif>
+				<cfelse>
+					<!--- not end of tag --->
+					<cfif NOT Len(tagName)>
+						<!--- we have not found the tag name yet --->
+						<cfif ReFind("[a-zA-Z]", c)>
+							<cfset tag = tag & c>
+						<cfelseif c IS " " OR c IS Chr(10) OR c IS Chr(9) OR (c IS "/" AND next IS ">")>
+							<cfset tagName = tag>
+							<!---<cfset tag = tag & c>--->
+							<cfset attr = StructNew()>
+							<cfset tagAllowed = StructKeyExists(arguments.tags, tagName)>
+						<cfelseif NOT Len(tag) AND c IS "/">
+							<!--- end tag --->
+							<cfset endTag = true>
+						</cfif>
+					<cfelseif tagAllowed>
+						<!--- we have a tag name and are parsing attributes --->
+						<cfif NOT inAttributeName AND NOT inAttributeValue>
+							<cfset attrName = "">
+							<cfset attrValue = "">
+							<cfif c IS " " OR c IS Chr(10) OR c IS Chr(9) OR c IS Chr(13)>
+								<!---<cfset tag = tag & c>--->
+							<cfelseif ReFind("[a-zA-Z-]", c)>
+								<cfset inAttributeName = true>
+								<cfset attrName = c>
+							<cfelseif c IS "/" AND next IS ">">
+								<cfset singletonTag = true>
+							</cfif>
+						<cfelseif inAttributeName>
+							<cfif c IS "=">
+								<cfset inAttributeName = false>
+								<cfset inAttributeValue = true>
+							<cfelseif ReFind("[a-zA-Z-]", c)>
+								<cfset attrName = attrName & c>
+							</cfif>
+						<cfelseif inAttributeValue>
+							<cfif c IS "'" OR c IS """" OR next IS ">">
+								<cfif Len(attrValue)>
+									<!--- reached end of attribute value --->
+									<cfset attr[attrName] = attrValue>
+									<cfset inAttributeValue = false>
+								<cfelseif next IS ">" AND Len(attrName)>
+									<!--- attribute name with no value at end of tag --->
+									<cfset attr[attrName] = "">
+									<cfset inAttributeValue=false>	
+								</cfif>
+							<cfelseif NOT Len(attrValue) AND (c IS " " OR c IS Chr(10) OR c IS Chr(9) OR c IS Chr(13))>
+								<!--- attribute name with no value --->
+								<cfset attr[attrName] = "">
+								<cfset inAttributeValue=false>
+							<cfelse>
+								<!--- dont allow newlines in attribute values replace with a space --->
+								<cfif c IS Chr(10)>
+									<cfset attrValue = attrValue & " ">
+								<cfelseif c IS NOT Chr(13)>
+									<cfset attrValue = attrValue & c>
+								</cfif>
+							</cfif>
+						</cfif>
+						<!---<cfset tag = tag & c>--->	
+					</cfif>
+				</cfif>
+			</cfif>
+		</cfloop> 
+		<cfreturn out.toString()>
+	</cffunction>
+	
+	<cffunction name="scrubHTMLSimple" output="false">
+		<cfargument name="in">
+		<cfset var tags = StructNew()>
+		
+	</cffunction>
+	
 	<cffunction name="assertInit" returntype="void" output="false" access="package">
 		<cfif NOT variables.inited>
 			<cfthrow message="You must call init() on securityutil before calling functions in it." type="foundeo.securityutil.noinit">
