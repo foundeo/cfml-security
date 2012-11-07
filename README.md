@@ -24,8 +24,8 @@ Copy the `securityutil.cfc` file into your project and then:
 
 ### ScrubHTML
 
-The `scrubHTML` function accepts a struct of tag rules of which to allow. If for example you 
-pass in an empty struct it would strip all tags. When a stray `<` or `>` is encountered it is converted
+The `scrubHTML` function allows you to build a whitelist of tags and attribute values that you accept in HTML, anything that does not match the list is filtered out of the HTML. 
+If for example you pass in an empty struct it would strip all tags. When a stray `<` or `>` is encountered it is converted
 into a HTML entity, for example: `&lt;`
 
 Here's a simple set of tag rules which will allow certain tags but will ensure that they do not have any attributes:
@@ -65,6 +65,20 @@ There are a few different attribute value matchers defined, here are some exampl
 { tagName = { attributeName="remove:[^a-zA-Z0-9]" } } //removes any characters that match the regex
 { tagName = { attributeName="alnum" } } //same as "match:[a-zA-Z0-9]+"
 { tagName = { attributeName="uri" } } //matches a relative or absolute uri but does not allow :
-{ tagName = { attributeName="uri" } } //matches a URL http or https 
+{ tagName = { attributeName="url" } } //matches a URL http or https 
 ```
+
+Support for matching styles are in very early development but right now this works:
+
+```cfm
+{ tagName = { style={ color="csscolor" } } } //allows <tagName style="color:#fff">
+```cfm
+
+You can also create a global attribute rule that applies to all tags (that are allowed) like this:
+
+```cfm
+{ "*" = { id="match:[a-zA-Z0-9]+" } }
+```cfm
+
+
  

@@ -116,7 +116,7 @@
 	
 	<cffunction name="scrubHTML" output="false" hint="Removes any non-allowed HTML tags or attributes from an input string.">
 		<cfargument name="in">
-		<cfargument name="tags" default="#getDefaultHTMLTagPolicy()#">
+		<cfargument name="policy" default="#getDefaultHTMLTagPolicy()#">
 		<cfset var inLen = Len(arguments.in)>
 		<cfset var i = 0>
 		<cfset var c = "">
@@ -133,6 +133,8 @@
 		<cfset var inAttributeValue = false>
 		<cfset var attr = "">
 		<cfset var singletonTag = false>
+		<cfset var rule = "">
+		<cfset var statement = "">
 		<cfloop from="1" to="#inLen#" index="i">
 			<cfset c = Mid(arguments.in, i, 1)>
 			<cfif i LT inLen>
@@ -170,33 +172,68 @@
 					<cfset inAttributeValue = false>
 					<cfif NOT Len(tagName)>
 						<cfset tagName = tag>
-						<cfset tagAllowed = StructKeyExists(arguments.tags, tagName)>
+						<cfset tagAllowed = StructKeyExists(arguments.policy, tagName)>
 					</cfif>
 					<cfif tagAllowed>
 						<cfif IsStruct(attr) AND NOT StructIsEmpty(attr)>
 							<cfloop list="#StructKeyList(attr)#" index="attrName">
-								<cfif StructKeyExists(arguments.tags[tagName], attrName)>
-									<cfif arguments.tags[tagName][attrName] IS "empty">
-										<cfset tag = tag & " " & attrName>
-									<cfelseif arguments.tags[tagName][attrName] IS "*">
-										<!--- allow anything in the attribute value --->
-										<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
-									<cfelseif arguments.tags[tagName][attrName] IS "uri">
-										<cfif ReFind("^/[a-zA-Z0-9%_.?/&=-]*$", attr[attrName]) OR ReFind("^[a-zA-Z0-9%_.?/&=-]+$", attr[attrName])>
+								<cfif StructKeyExists(arguments.policy[tagName], attrName) OR (StructKeyExists(arguments.policy, "*") AND StructKeyExists(arguments.policy["*"], attrName))>
+									<cfif StructKeyExists(arguments.policy[tagName], attrName)>
+										<cfset rule = arguments.policy[tagName][attrName]>
+									<cfelse>
+										<cfset rule = arguments.policy["*"][attrName]>
+									</cfif>
+									<cfif IsStruct(rule) AND LCase(attrName) IS "style">
+										<cfif Len(attr['style'])>
+											<cfset attrValue = "">
+											<cfloop list="#attr['style']#" index="statement" delimiters=";">
+												<cfset statement = ListToArray(statement, ":")>
+												<cfset statement[1] = Trim(statement[1])>
+												<cfif ArrayLen(statement) IS 2>
+													<!--- if it is a key:pair --->
+													<cfif StructKeyExists(rule, statement[1])>
+														<cfset statement[2] = Trim(statement[2])>
+														<cfswitch expression="#rule[statement[1]]#">
+															<cfcase value="csscolor">
+																<!--- hex OR colorname or TODO:rgb --->
+																<cfif ReFindNoCase("^##[A-F0-9]{3,6}$",statement[2]) OR ReFindNoCase("^[a-z]{3,30}$", statement[2])>
+																	<cfset attrValue = attrValue & statement[1] & ":" & statement[2] & ";">
+																</cfif>
+															</cfcase>
+															<cfdefaultcase>
+																<!--- todo support other options --->
+															</cfdefaultcase>
+														</cfswitch>
+													</cfif>
+												</cfif>
+											</cfloop>
+											<cfif Len(attrValue)>
+												<cfset tag = tag & " style=""" & attrValue & """">
+											</cfif>
+										</cfif>
+									<cfelse>
+										<cfif rule IS "empty">
+											<cfset tag = tag & " " & attrName>
+										<cfelseif rule IS "*">
+											<!--- allow anything in the attribute value --->
 											<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
-										</cfif>
-									<cfelseif arguments.tags[tagName][attrName] IS "url">
-										<cfif ReFind("^https?://[a-zA-Z0-9.-]+[a-zA-Z0-9%_.?/&=-]*$", attr[attrName]) OR ReFind("^[a-zA-Z0-9%_.?/&=-]+$", attr[attrName])>
-											<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
-										</cfif>
-									<cfelseif Left(arguments.tags[tagName][attrName], 6) IS "match:">
-										<cfif ReFind("^"&Right(arguments.tags[tagName][attrName], Len(arguments.tags[tagName][attrName])-6) & "$", attr[attrName])>
-											<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">	
-										</cfif>
-									<cfelseif Left(arguments.tags[tagName][attrName], 7) IS "remove:">
-										<cfset attrValue = ReReplace(attr[attrName], Right(arguments.tags[tagName][attrName], Len(arguments.tags[tagName][attrName])-7), "", "ALL")>
-										<cfif Len(attrValue)>
-											<cfset tag = tag & " " & attrName & "=""" & attrValue & """">
+										<cfelseif rule IS "uri">
+											<cfif ReFind("^/[a-zA-Z0-9%_.?/&=-]*$", attr[attrName]) OR ReFind("^[a-zA-Z0-9%_.?/&=-]+$", attr[attrName])>
+												<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
+											</cfif>
+										<cfelseif rule IS "url">
+											<cfif ReFind("^https?://[a-zA-Z0-9.-]+[a-zA-Z0-9%_.?/&=-]*$", attr[attrName]) OR ReFind("^[a-zA-Z0-9%_.?/&=-]+$", attr[attrName])>
+												<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">
+											</cfif>
+										<cfelseif Left(rule, 6) IS "match:">
+											<cfif ReFind("^"&Right(rule, Len(rule)-6) & "$", attr[attrName])>
+												<cfset tag = tag & " " & attrName & "=""" & attr[attrName] & """">	
+											</cfif>
+										<cfelseif Left(rule, 7) IS "remove:">
+											<cfset attrValue = ReReplace(attr[attrName], Right(rule, Len(rule)-7), "", "ALL")>
+											<cfif Len(attrValue)>
+												<cfset tag = tag & " " & attrName & "=""" & attrValue & """">
+											</cfif>
 										</cfif>
 									</cfif>
 								</cfif>
@@ -226,7 +263,7 @@
 							<cfset tagName = tag>
 							<!---<cfset tag = tag & c>--->
 							<cfset attr = StructNew()>
-							<cfset tagAllowed = StructKeyExists(arguments.tags, tagName)>
+							<cfset tagAllowed = StructKeyExists(arguments.policy, tagName)>
 						<cfelseif NOT Len(tag) AND c IS "/">
 							<!--- end tag --->
 							<cfset endTag = true>
@@ -300,6 +337,7 @@
 			<cfset t.strong=StructNew()>
 			<cfset t.br=StructNew()>
 			<cfset t.ul=StructNew()>
+			<cfset t.ol=StructNew()>
 			<cfset t.li=StructNew()>
 			<cfset t.table=StructNew()>
 			<cfset t.table.border="match:[0-9]+">
@@ -322,8 +360,15 @@
 			<cfset t.a.target="match:(_blank|_parent|_self|_top)">
 			<cfset t.a.rel="match:(nofollow|alternate)">
 			<cfset t.a.name="alnum">
+			<cfset t.img = StructNew()>
+			<cfset t.img.src = "url">
+			<cfset t.img.title="replace:[^a-zA-Z0-9 .()_-]">
+			<cfset t.img.alt="replace:[^a-zA-Z0-9 .()_-]">
 			<cfset t.div = StructNew()>
 			<cfset t.span = StructNew()>
+			<cfset t["*"] = StructNew()>
+			<cfset t["*"].id = "replace:[^a-zA-Z0-9_-]">
+			<cfset t["*"].class = "replace:[^a-zA-Z0-9 _-]">
 			<cfset setDefaultHTMLTagPolicy(t)>
 			<cfreturn t>
 		</cfif>

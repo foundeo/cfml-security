@@ -79,6 +79,22 @@
 		<cfset assert("<table><thead><tr><th colspan=""2"">Test</th></tr></thead><tbody><tr><td><div /></td></tr></tbody></table>" IS result, "Values do not match: #xmlformat(result)#")>
 	</cffunction>
 	
+	<cffunction name="testGlobalPolicy">
+		<cfset var tags = {"*"={"id"="remove:[^a-zA-Z0-9]"}, p={}}>
+		<cfset var result = "">
+		<cfset result = getSecurityUtil().scrubHTML("<p id=""test@example.com"" />", tags)>
+		<cfset assert("<p id=""testexamplecom"" />" IS result, "Values do not match: #xmlformat(result)#")>
+	</cffunction>
+	
+	<cffunction name="testStyleColor">
+		<cfset var tags = {p={style={color="csscolor", "background-color"="csscolor"}}}>
+		<cfset var result = "">
+		<cfset result = getSecurityUtil().scrubHTML("<p style=""color: red; background-color: ##f1f1f1; background-image:url(foo);"" />", tags)>
+		<cfset assert("<p style=""color:red;background-color:##f1f1f1;"" />" IS result, "Values do not match: #xmlformat(result)#")>
+	</cffunction>
+	
+	
+	
 	
 	
 </cfcomponent>
