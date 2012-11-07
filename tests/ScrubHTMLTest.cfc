@@ -73,6 +73,11 @@
 		<cfset assert("<p id=""testexamplecom"" />" IS result, "Values do not match: #xmlformat(result)#")>
 	</cffunction>
 	
+	<cffunction name="testDefaultPolicy">
+		<cfset var result = "">
+		<cfset result = getSecurityUtil().scrubHTML("<table><thead><tr><th colspan=""2"">Test</th></tr></thead><tbody><tr><td><div /><hacker /></td></tr></tbody></table>")>
+		<cfset assert("<table><thead><tr><th colspan=""2"">Test</th></tr></thead><tbody><tr><td><div /></td></tr></tbody></table>" IS result, "Values do not match: #xmlformat(result)#")>
+	</cffunction>
 	
 	
 	

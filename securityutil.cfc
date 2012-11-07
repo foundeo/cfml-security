@@ -116,7 +116,7 @@
 	
 	<cffunction name="scrubHTML" output="false" hint="Removes any non-allowed HTML tags or attributes from an input string.">
 		<cfargument name="in">
-		<cfargument name="tags" default="#StructNew()#">
+		<cfargument name="tags" default="#getDefaultHTMLTagPolicy()#">
 		<cfset var inLen = Len(arguments.in)>
 		<cfset var i = 0>
 		<cfset var c = "">
@@ -166,6 +166,8 @@
 				<cfif c IS ">">
 					<!--- reached the end of the tag --->
 					<cfset inTag = false>
+					<cfset inAttributeName = false>
+					<cfset inAttributeValue = false>
 					<cfif NOT Len(tagName)>
 						<cfset tagName = tag>
 						<cfset tagAllowed = StructKeyExists(arguments.tags, tagName)>
@@ -196,8 +198,6 @@
 										<cfif Len(attrValue)>
 											<cfset tag = tag & " " & attrName & "=""" & attrValue & """">
 										</cfif>
-									<cfelseif ReFind(arguments.tags[tagName][attrName], attr[attrName])>
-										
 									</cfif>
 								</cfif>
 							</cfloop>
@@ -211,7 +211,11 @@
 							<cfset out.append(" /")>
 						</cfif>
 						<cfset out.append(">")>
+						
 					</cfif>
+					<cfset tagName = "">
+					<cfset tag = "">
+					<cfset attr = StructNew()>
 				<cfelse>
 					<!--- not end of tag --->
 					<cfif NOT Len(tagName)>
@@ -277,6 +281,52 @@
 			</cfif>
 		</cfloop> 
 		<cfreturn out.toString()>
+	</cffunction>
+	
+	<cffunction name="setDefaultHTMLTagPolicy">
+		<cfargument name="tags" type="struct">
+		<cfset variables.defaultHTMLTagPolicy = arguments.tags>
+	</cffunction>
+	
+	<cffunction name="getDefaultHTMLTagPolicy" returntype="struct" hint="Returns policy set via setDefaultHTMLTagPolicy or a fairly safe default">
+		<cfset var t = "">
+		<cfif StructKeyExists(variables, "defaultHTMLTagPolicy")>
+			<cfreturn variables.defaultHTMLTagPolicy>
+		<cfelse>
+			<cfset t=StructNew()>
+			<cfset t.p=StructNew()>
+			<cfset t.em=StructNew()>
+			<cfset t.b=StructNew()>
+			<cfset t.strong=StructNew()>
+			<cfset t.br=StructNew()>
+			<cfset t.ul=StructNew()>
+			<cfset t.li=StructNew()>
+			<cfset t.table=StructNew()>
+			<cfset t.table.border="match:[0-9]+">
+			<cfset t.table.cellspacing="match:[0-9]+">
+			<cfset t.table.cellpadding="match:[0-9]+">
+			<cfset t.table.width="match:[0-9]+%?">
+			<cfset t.table.height="match:[0-9]+%?">
+			<cfset t.thead=StructNew()>
+			<cfset t.tbody=StructNew()>
+			<cfset t.tfoot=StructNew()>
+			<cfset t.th=StructNew()>
+			<cfset t.th.width = "match:[0-9]+%?">
+			<cfset t.th.height = "match:[0-9]+%?">
+			<cfset t.th.colspan = "match:[0-9]+">
+			<cfset t.tr = StructNew()>
+			<cfset t.td = Duplicate(t.th)>
+			<cfset t.a = StructNew()>
+			<cfset t.a.href="url">
+			<cfset t.a.title="replace:[^a-zA-Z0-9 .()_-]">
+			<cfset t.a.target="match:(_blank|_parent|_self|_top)">
+			<cfset t.a.rel="match:(nofollow|alternate)">
+			<cfset t.a.name="alnum">
+			<cfset t.div = StructNew()>
+			<cfset t.span = StructNew()>
+			<cfset setDefaultHTMLTagPolicy(t)>
+			<cfreturn t>
+		</cfif>
 	</cffunction>
 	
 	<cffunction name="scrubHTMLSimple" output="false">
