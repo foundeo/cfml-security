@@ -12,5 +12,12 @@ Copy the `securityutil.cfc` file into your project and then:
 <cfoutput>
 	Hello #securityUtil.encodeHTML(url.name)# <br /> <!--- ESAPI encodeForHTML --->
 	Hello #securityUtil.scrub(url.name)# <!--- remove all but a-z0-9 --->
+	Hello #securityUtil.scrub(url.name, ".,")# <!--- remove all but a-z0-9 and  ., --->
+	
+	<!--- experimental --->
+	#securityUtil.scrubHTML(form.html)# <!--- only allow a strict set of tags, attributes and attribute values --->
+	
+	#securityUtil.scrubHTML(form.html, {div={class="alnum"})# <!--- only allow div tags with class="[a-z0-9]" --->
+	
 </cfoutput>
 ```
