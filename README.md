@@ -51,6 +51,20 @@ Will output:
 <div><ul><li>One</li></div>
 ```
 
+Now if you want to allow the `id` you can do something like this:
 
+```cfm
+securityUtil.scrubHTML(form.html, {div={id="alnum"},ul={type="match:(disc|square|circle)"},li={}})
+```
 
+There are a few different attribute value matchers defined, here are some examples of how you might use them:
+
+```cfm
+{ tagName = { attributeName="*" } } //allows <tagName attributeName="anything in here">
+{ tagName = { attributeName="match:[a-zA-Z@.-]+" } } //regex allow, if no match attribute is skipped
+{ tagName = { attributeName="remove:[^a-zA-Z0-9]" } } //removes any characters that match the regex
+{ tagName = { attributeName="alnum" } } //same as "match:[a-zA-Z0-9]+"
+{ tagName = { attributeName="uri" } } //matches a relative or absolute uri but does not allow :
+{ tagName = { attributeName="uri" } } //matches a URL http or https 
+```
  
