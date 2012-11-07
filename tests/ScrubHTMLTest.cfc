@@ -87,10 +87,17 @@
 	</cffunction>
 	
 	<cffunction name="testStyleColor">
-		<cfset var tags = {p={style={color="csscolor", "background-color"="csscolor"}}}>
+		<cfset var tags = {p={style={color="css-color", "background-color"="css-color"}}}>
 		<cfset var result = "">
 		<cfset result = getSecurityUtil().scrubHTML("<p style=""color: red; background-color: ##f1f1f1; background-image:url(foo);"" />", tags)>
 		<cfset assert("<p style=""color:red;background-color:##f1f1f1;"" />" IS result, "Values do not match: #xmlformat(result)#")>
+	</cffunction>
+	
+	<cffunction name="testStyleDimension">
+		<cfset var tags = {p={style={margin="css-dimension", padding="css-dimension", "font-size"="css-dimension"}}}>
+		<cfset var result = "">
+		<cfset result = getSecurityUtil().scrubHTML("<p style=""margin:5px 6px; padding:10% 4% 10% 5%; font-size:12em; background-image:url(foo);"" />", tags)>
+		<cfset assert("<p style=""margin:5px 6px;padding:10% 4% 10% 5%;font-size:12em;"" />" IS result, "Values do not match: #xmlformat(result)#")>
 	</cffunction>
 	
 	

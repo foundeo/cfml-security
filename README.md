@@ -71,7 +71,7 @@ There are a few different attribute value matchers defined, here are some exampl
 Support for matching styles are in very early development but right now this works:
 
 ```cfm
-{ tagName = { style={ color="csscolor" } } } //allows <tagName style="color:#fff">
+{ tagName = { style={ color="css-color" } } } //allows <tagName style="color:#fff">
 ```
 
 You can also create a global attribute rule that applies to all tags (that are allowed) like this:

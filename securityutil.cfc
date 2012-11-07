@@ -194,11 +194,18 @@
 													<cfif StructKeyExists(rule, statement[1])>
 														<cfset statement[2] = Trim(statement[2])>
 														<cfswitch expression="#rule[statement[1]]#">
-															<cfcase value="csscolor">
+															<cfcase value="css-color">
 																<!--- hex OR colorname or TODO:rgb --->
 																<cfif ReFindNoCase("^##[A-F0-9]{3,6}$",statement[2]) OR ReFindNoCase("^[a-z]{3,30}$", statement[2])>
 																	<cfset attrValue = attrValue & statement[1] & ":" & statement[2] & ";">
 																</cfif>
+															</cfcase>
+															<cfcase value="css-dimension">
+																<!--- allow 5px or 5% or '5px 6px 8px' or 5em or 5pt or auto --->
+																<cfif LCase(statement[2]) IS "auto" OR ReFindNoCase("^[0-9pxtem% ]+$", statement[2]) OR ListFindNoCase("smaller,larger,xx-small,x-small,small,medium,large,x-large,xx-large", statement[2])>
+																	<cfset attrValue = attrValue & statement[1] & ":" & statement[2] & ";">
+																</cfif>	
+																
 															</cfcase>
 															<cfdefaultcase>
 																<!--- todo support other options --->
@@ -369,6 +376,26 @@
 			<cfset t["*"] = StructNew()>
 			<cfset t["*"].id = "replace:[^a-zA-Z0-9_-]">
 			<cfset t["*"].class = "replace:[^a-zA-Z0-9 _-]">
+			<cfset t["*"].style = StructNew()>
+			<cfset t["*"].style["color"] = "css-color">
+			<cfset t["*"].style["background-color"] = "css-color">
+			<cfset t["*"].style["margin"] = "css-dimension">
+			<cfset t["*"].style["margin-top"] = "css-dimension">
+			<cfset t["*"].style["margin-right"] = "css-dimension">
+			<cfset t["*"].style["margin-bottom"] = "css-dimension">
+			<cfset t["*"].style["margin-left"] = "css-dimension">
+			<cfset t["*"].style["padding"] = "css-dimension">
+			<cfset t["*"].style["padding-top"] = "css-dimension">
+			<cfset t["*"].style["padding-right"] = "css-dimension">
+			<cfset t["*"].style["padding-bottom"] = "css-dimension">
+			<cfset t["*"].style["padding-left"] = "css-dimension">
+			
+			<cfset t.h1 = StructNew()>
+			<cfset t.h2 = StructNew()>
+			<cfset t.h3 = StructNew()>
+			<cfset t.h4 = StructNew()>
+			<cfset t.h5 = StructNew()>
+			<cfset t.h6 = StructNew()>
 			<cfset setDefaultHTMLTagPolicy(t)>
 			<cfreturn t>
 		</cfif>
