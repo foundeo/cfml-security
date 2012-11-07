@@ -72,13 +72,13 @@ Support for matching styles are in very early development but right now this wor
 
 ```cfm
 { tagName = { style={ color="csscolor" } } } //allows <tagName style="color:#fff">
-```cfm
+```
 
 You can also create a global attribute rule that applies to all tags (that are allowed) like this:
 
 ```cfm
 { "*" = { id="match:[a-zA-Z0-9]+" } }
-```cfm
+```
 
 
  
