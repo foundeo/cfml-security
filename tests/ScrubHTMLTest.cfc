@@ -2,7 +2,6 @@
 	
 	<cffunction name="testScrubHTML">
 		<cfset assertEquals("test123", getSecurityUtil().scrubHTML("test123"))>
-		
 	</cffunction>
 	
 	<cffunction name="testScrubHTMLSimple">
@@ -40,6 +39,13 @@
 		<cfset result = getSecurityUtil().scrubHTML("This is a test. <p id=""test"" /12345", tags)>
 		<cfset assert("This is a test. " IS result, "Values do not match: #xmlformat(result)#")>
 	</cffunction>
+
+	<cffunction name="testMalformedTag">
+		<cfset var tags = {"p"={}, "i"={}, "em"={}, "strong"={}, "b"={}}>
+		<cfset var result = "">
+		<cfset result = getSecurityUtil().scrubHTML("Test <em /<body onload=alert(1)>", tags)>
+		<cfset assert("Test <em>" IS result, "Values do not match: #xmlformat(result)#")>
+	</cffunction>
 	
 	<cffunction name="testGroup">
 		<cfset var tags = {"p"={"class"="match:(bacon|pork|ham)"}}>
@@ -64,6 +70,15 @@
 		<cfset assert("<img src=""https://ex-ample.com/index.cfm?id=1&x=2%20"" />" IS result, "Values do not match: #xmlformat(result)#")>
 		<cfset result = getSecurityUtil().scrubHTML("<img src=""javascript:foo"" />", tags)>
 		<cfset assert("<img />" IS result, "Values do not match: #xmlformat(result)#")>
+		
+		<cfset result = getSecurityUtil().scrubHTML("<IMG SRC=""jav&##x09;ascript:alert('XSS');"">", tags)>
+		<cfset assert("<IMG>" IS result, "Values do not match: #xmlformat(result)#")>
+		<!---  --->
+		<cfset result = getSecurityUtil().scrubHTML("<IMG SRC=&##0000106&##0000097&##0000118&##0000097&##0000115&##0000099&##0000114&##0000105&##0000112&##0000116&##0000058&##0000097&
+##0000108&##0000101&##0000114&##0000116&##0000040&##0000039&##0000088&##0000083&##0000083&##0000039&##0000041>", tags)>
+		<cfset assert("<IMG>" IS result, "Values do not match: #xmlformat(result)#")>
+		<cfset result = getSecurityUtil().scrubHTML("<IMG SRC=""livescript:[code]"">", tags)>
+		<cfset assert("<IMG>" IS result, "Values do not match: #xmlformat(result)#")>
 	</cffunction>
 	
 	<cffunction name="testRemove">
