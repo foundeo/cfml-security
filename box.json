@@ -14,7 +14,7 @@
 	"Bugs" : "https://github.com/foundeo/cfml-security/issues",
 	"shortDescription" : "Various Utilities Methods for Security",
 	"keywords" : [ "security", "esapi", "encodefor" ],
-	"private" : "boolean",
+	"private" : "false",
 	"engines" : [
 		{ "type" : "railo", "version" : ">=4.1.x" },
 		{ "type" : "adobe", "version" : ">=9.0.0" }
@@ -25,8 +25,5 @@
 		{ "type" : "MIT", "URL" : "" }
 	],
 	"Contributors" : [ {"name": "Pete Freitag", "url": "http://www.petefreitag.com"} ],
-	"installPaths" : {
-		"securityutil.cfc" : "securityutil.cfc" 
-	},
-	"ignore" : [ "tests/*", "readme.md", "test.cfm" ]
+	"ignore" : [ "tests/*", "README.md", "test.cfm" ]
 }
