@@ -1,0 +1,60 @@
+{
+    "name" : "SecurityUtil",
+    // ForgeBox unique slug
+    "slug" : "securityutil",
+    // semantic version of your package
+    "version" : "1.0.0.0",
+    // author of this package
+    "author" : "Foundeo Inc. <contact@foundeo.com>",
+    // location of where to download the package, overrides ForgeBox location
+    "location" : "https:\/\/github.com\/foundeo\/cfml-security",
+    // install directory where this package should be placed once installed, if not
+    // defined it then installs were the CommandBox command was executed.
+    "directory" : "",
+    // This boolean bit determines if the container directory will contain a sub-directory according to
+    // the package slug name, the default is true
+    "createPackageDirectory" : "false",
+    
+    // project homepage URL 
+    "Homepage" : "https:\/\/github.com\/foundeo\/cfml-security",
+    // documentation URL
+    "Documentation" : "https:\/\/github.com/foundeo\/cfml-security",
+    // source repository, valid keys: type, URL 
+    "Repository" : { 
+        "type" : "git", "URL" : "https:\/\/github.com\/foundeo\/cfml-security"
+    },
+    // bug issue management URL
+    "Bugs" : "https:\/\/github.com\/foundeo\/cfml-security\/issues",
+    // ForgeBox short description
+    "shortDescription" : "Various Utilities Methods for Security",
+    "keywords" : [ "security", "esapi", "encodefor" ],
+    // Bit that if set to true, will not allow ForgeBox posting if using commands
+    "private" : "boolean",
+    // cfml engines it supports, type and version
+    "engines" : [
+        { "type" : "railo", "version" : ">=4.1.x" },
+        { "type" : "adobe", "version" : ">=9.0.0" }
+    ],
+    // default engine to use using our run embedded server command
+    // Available engines are railo, cf9, cf10, cf11
+    "defaultEngine" : "railo",
+    // default engine port using our run embedded server command
+    "defaultPort" : 8085,
+    
+    "License" : [
+        { "type" : "MIT", "URL" : "" }
+    ]
+    // contributors array of strings or structs: name,email,url 
+    "Contributors" : [ {name="Pete Freitag", url="http:\/\/www.petefreitag.com\/"} ],
+    // dependencies, a shortcut for latest version is to use the * string
+    
+    // Tracks install locations so uninstall can work.
+    "installPaths" : {
+        "securityutil.cfc" : "securityutil.cfc" // relative to package root (no leading slash)
+        
+    },
+    // array of strings of files to ignore when installing the package similar to .gitignore pattern spec 
+    "ignore" : [ "tests/*", "readme.md", "test.cfm" ]
+    
+}
+   
