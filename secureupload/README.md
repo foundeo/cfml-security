@@ -22,7 +22,7 @@ Copy the `secureupload.cfc` file into your project and then:
 
 ## Result
 
-The result is a struct with the following keys...
+The result / return value of the `upload()` function is a struct with the following keys...
 
 ##### success
 
@@ -44,3 +44,44 @@ The file name including the extension.
 
 This is the internal result of the `cffile` tag, the `serverFile`, `serverDirectory`, `serverFileName` keys
 will be relative to the `tempDirectory` argument.
+
+## Upload() Arguments
+
+The following arguments can be passed into the `upload()` function.
+
+##### fileField
+
+The name of the form field containing the file to upload.
+
+##### destination
+
+The file path to the final destination directory of the uploaded file. The file will
+not be placed in this directory unless all validation steps have passed first.
+
+##### extensions
+
+A list of file extensions, eg: jpg,png,gif,jpeg you must specify this list.
+
+##### type
+
+Specify image,pdf,auto (looks at file ext of uploaded file and runs a type check), or a list of mime types.
+
+##### nameconflict
+
+One of: makeunique, overwrite, random, error. Random will always generate a random file name even if there is no conflict.
+
+##### onFailure
+
+Specify: `throw` (log, throw exception delete file), `log` (delete file, log exception/failure), `throwAndKeepTempFile` (log, throw exception do not attempt to delete file in tempDirectory)
+
+##### tempDirectory
+
+A directory that is not under the web root. File is uploaded here first, then moved to the destination if validation passes.
+
+##### defaultExtension
+
+If no file extension is supplied by the client, use this. If this value is empty and the client does not supply an extension an exception will be thrown.
+
+##### destinationFileName
+
+Specify the name of the file. If you omit the file extension the uploaded file extension will be used (must be in extensions argument list).
