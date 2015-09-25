@@ -1,7 +1,7 @@
-CFML Security Utilities
+CFML Security Util
 ===================
 
-This repository contains some security utilities for CFML (ColdFusion) developers.
+This CFC contains some security utilities for CFML (ColdFusion) developers.
 
 ## Example Usage
 
@@ -13,18 +13,18 @@ Copy the `securityutil.cfc` file into your project and then:
 	Hello #securityUtil.encodeHTML(url.name)# <br /> <!--- ESAPI encodeForHTML --->
 	Hello #securityUtil.scrub(url.name)# <!--- remove all but a-z0-9 --->
 	Hello #securityUtil.scrub(url.name, ".,")# <!--- remove all but a-z0-9 and  ., --->
-	
+
 	<!--- experimental --->
 	#securityUtil.scrubHTML(form.html)# <!--- only allow a strict set of tags, attributes and attribute values --->
-	
+
 	#securityUtil.scrubHTML(form.html, {div={class="alnum"}})# <!--- only allow div tags with class="[a-z0-9]" --->
-	
+
 </cfoutput>
 ```
 
 ### ScrubHTML
 
-The `scrubHTML` function allows you to build a whitelist of tags and attribute values that you accept in HTML, anything that does not match the list is filtered out of the HTML. 
+The `scrubHTML` function allows you to build a whitelist of tags and attribute values that you accept in HTML, anything that does not match the list is filtered out of the HTML.
 If for example you pass in an empty struct it would strip all tags. When a stray `<` or `>` is encountered it is converted
 into a HTML entity, for example: `&lt;`
 
@@ -65,7 +65,7 @@ There are a few different attribute value matchers defined, here are some exampl
 { tagName = { attributeName="remove:[^a-zA-Z0-9]" } } //removes any characters that match the regex
 { tagName = { attributeName="alnum" } } //same as "match:[a-zA-Z0-9]+"
 { tagName = { attributeName="uri" } } //matches a relative or absolute uri but does not allow :
-{ tagName = { attributeName="url" } } //matches a URL http or https 
+{ tagName = { attributeName="url" } } //matches a URL http or https
 ```
 
 Support for matching styles are in very early development but right now this works:
@@ -79,6 +79,3 @@ You can also create a global attribute rule that applies to all tags (that are a
 ```cfm
 { "*" = { id="match:[a-zA-Z0-9]+" } }
 ```
-
-
- 
