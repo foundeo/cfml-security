@@ -1,29 +1,54 @@
 {
-	"name" : "SecurityUtil",
-	"slug" : "securityutil",
-	"version" : "1.0.0.0",
-	"author" : "Foundeo Inc. <contact@foundeo.com>",
-	"location" : "https://github.com/foundeo/cfml-security",
-	"directory" : "",
-	"createPackageDirectory" : "false",
-	"Homepage" : "https://github.com/foundeo/cfml-security",
-	"Documentation" : "https://github.com/foundeo/cfml-security",
-	"Repository" : { 
-		"type" : "git", "URL" : "https://github.com/foundeo/cfml-security"
-	},
-	"Bugs" : "https://github.com/foundeo/cfml-security/issues",
-	"shortDescription" : "Various Utilities Methods for Security",
-	"keywords" : [ "security", "esapi", "encodefor" ],
-	"private" : "false",
-	"engines" : [
-		{ "type" : "railo", "version" : ">=4.1.x" },
-		{ "type" : "adobe", "version" : ">=9.0.0" }
-	],
-	"defaultEngine" : "railo",
-	"defaultPort" : "8085",
-	"License" : [
-		{ "type" : "MIT", "URL" : "" }
-	],
-	"Contributors" : [ {"name": "Pete Freitag", "url": "http://www.petefreitag.com"} ],
-	"ignore" : [ "tests/*", "README.md", "test.cfm" ]
+    "name":"SecurityUtil",
+    "slug":"securityutil",
+    "version":"1.1.0.0",
+    "author":"Foundeo Inc. <contact@foundeo.com>",
+    "location":"https://github.com/foundeo/cfml-security",
+    "Homepage":"https://github.com/foundeo/cfml-security",
+    "Documentation":"https://github.com/foundeo/cfml-security",
+    "Repository":{
+        "type":"git",
+        "URL":"https://github.com/foundeo/cfml-security"
+    },
+    "Bugs":"https://github.com/foundeo/cfml-security/issues",
+    "shortDescription":"Various Utilities Methods for Security",
+    "keywords":[
+        "security",
+        "esapi",
+        "encodefor"
+    ],
+    "private":"false",
+    "engines":[
+        {
+            "type":"railo",
+            "version":">=4.1.x"
+        },
+        {
+            "type":"adobe",
+            "version":">=9.0.0"
+        }
+    ],
+    "License":[
+        {
+            "type":"MIT",
+            "URL":""
+        }
+    ],
+    "Contributors":[
+        {
+            "name":"Pete Freitag",
+            "url":"http://www.petefreitag.com"
+        }
+    ],
+    "ignore":[
+        "tests/*",
+        "README.md",
+        "test.cfm"
+    ],
+    "devDependencies":{
+        "testbox":"2.0.0"
+    },
+    "installPaths":{
+        "testbox":"tests/testbox"
+    }
 }

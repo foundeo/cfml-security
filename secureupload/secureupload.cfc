@@ -2,13 +2,13 @@
 	<cfset variables.supportsCallStackGet = structKeyExists(getFunctionList(), "callStackGet")>
 	<cfset variables.supportsFileGetMimeType = structKeyExists(getFunctionList(), "fileGetMIMEType")>
 
-	<cffunction name="upload" returntype="struct">
+	<cffunction name="upload" returntype="struct" access="public">
 		<cfargument name="fileField" required="true" hint="The name of the form field.">
 		<cfargument name="destination" required="true" hint="The file path to store the file.">
 		<cfargument name="extensions" default="jpg,png,gif,jpeg">
 		<cfargument name="type" default="auto" hint="Specify image,pdf,auto (looks at file ext of uploaded file and runs a type check), or a list of mime types.">
 		<cfargument name="nameconflict" default="random" hint="One of: makeunique, overwrite, random, error. Random will always generate a random file name even if there is no conflict.">
-		<cfargument name="onFailure" default="throw" hint="Specify: throw (log, throw exception delete file), log (delete file, log exception/failure), throwAndKeepTempFile (log, throw exception do not attempt to delete file in tempDirectory)">
+		<cfargument name="onFailure" default="throw" hint="Specify: throw (log, throw exception delete file) or log (delete file, log exception/failure)">
 		<cfargument name="tempDirectory" default="#getDefaultTempDirectory()#" hint="A directory that is not under the web root. File is uploaded here first, then moved to the destination if validation passes.">
 		<cfargument name="defaultExtension" default="" hint="If no file extension is supplied by the client, use this. If this value is empty and the client does not supply an extension an exception will be thrown.">
 		<cfargument name="destinationFileName" default="" hint="Specify the name of the file. If you omit the file extension the uploaded file extension will be used (must be in extensions argument list).">
@@ -45,7 +45,7 @@
 			<!--- check the file extension list --->
 			<cfset result.validExtension = ListFindNoCase(arguments.extensions, ext) NEQ 0>
 			<cfif NOT result.validExtension>
-				<cfthrow message="Attempt to upload file with Extension #ext#" detail="Client File: #result.cfFileResult.clientFile# Server File: #result.cfFileResult.serverFile#">
+				<cfthrow message="Attempt to upload file with Extension #xmlFormat(ext)#" detail="Client File: #result.cfFileResult.clientFile# Server File: #result.cfFileResult.serverFile#">
 			</cfif>
 
 			<!--- check file type --->
@@ -58,7 +58,7 @@
 
 			<cfset result.validType = validateFileType(filePath=getServerFilePath(result.cfFileResult), fileExt=ext, type=arguments.type)>
 			<cfif NOT result.validType>
-				<cfthrow message="Attempt to upload file with Extension #ext# type check failed." detail="Mime Type: #result.mimeType#">
+				<cfthrow message="Attempt to upload file with Extension #xmlFormat(ext)# type check failed." detail="Mime Type: #result.mimeType#">
 			</cfif>
 
 			<cfif Len(arguments.destinationFileName)>
@@ -103,17 +103,15 @@
 				<cftry>
 					<cfset logger(exception=cfcatch, type="fatal")>
 					<cfset result.message = cfcatch.message>
-					<cfif arguments.onFailure IS "throwAndKeepTempFile">
-						<cfrethrow>
-					<cfelse>
-						<!--- attempt to delete the file --->
-						<cfif NOT isSimpleValue(result.cfFileResult)>
-							<cfset deleteServerFile(result.cfFileResult)>
-						</cfif>
-						<cfif arguments.onFailure IS "throw">
-							<cfrethrow>
-						</cfif>
+					
+					<!--- attempt to delete the file --->
+					<cfif NOT isSimpleValue(result.cfFileResult)>
+						<cfset deleteServerFile(result.cfFileResult)>
 					</cfif>
+					<cfif arguments.onFailure IS "throw">
+						<cfrethrow>
+					</cfif>
+					
 					<cfcatch>
 						<!--- if catch block is throwing an exception
 							the file might not get deleted, so log and rethrow --->
