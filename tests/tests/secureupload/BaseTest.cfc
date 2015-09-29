@@ -15,7 +15,7 @@ component extends="testbox.system.BaseSpec" {
 		}
 		u = u & "://" & cgi.server_name;
 		if (cgi.server_port != "80") {
-			u = u & ":80";
+			u = u & ":" & cgi.server_port;
 		}
 		u = u & replace(cgi.script_name, "run.cfm", "tests/secureupload/upload.cfm");
 		return u;
