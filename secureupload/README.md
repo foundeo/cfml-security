@@ -97,11 +97,11 @@ Specify the name of the file. If you omit the file extension the uploaded file e
 
 ## Custom Type Checking
 
-If you want to add a `type` check that is not currently supported, you can make the change directly to the CFC and submit a pull request, or extend the `secureupload` CFC and implement the `validateFileType(filePath, fileExt, type)` function.
+If you want to add a `type` check that is not currently supported, you can make the change directly to the CFC and submit a pull request (so this repository can be updated), or extend the `secureupload` CFC and implement the `validateFileType(filePath, fileExt, type)` function.
 
 For Example:
 
-```
+```cfm
 <cfcomponent extends="secureupload">
 	<cffunction name="validateFileType" hint="Checks file type">
 			<cfargument name="filePath">
