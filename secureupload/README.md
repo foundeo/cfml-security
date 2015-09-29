@@ -113,5 +113,5 @@ For Example:
 				<cfreturn super.validateFileType(arguments.filePath, arguments.fileExt, arguments.type)>
 			</cfif>
 	</cffunction>
-</cfargument> 
+</cfcomponent> 
 ```
