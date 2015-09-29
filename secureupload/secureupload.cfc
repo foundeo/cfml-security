@@ -13,8 +13,7 @@
 		<cfargument name="defaultExtension" default="" hint="If no file extension is supplied by the client, use this. If this value is empty and the client does not supply an extension an exception will be thrown.">
 		<cfargument name="destinationFileName" default="" hint="Specify the name of the file. If you omit the file extension the uploaded file extension will be used (must be in extensions argument list).">
 
-		<cfset var result = {success=false, validExtension=false, validType=false, cfFileResult="", fileName="", filePath="", mimeType="", message=""}>
-		<cfset var ext = "">
+		<cfset var result = {success=false, validExtension=false, validType=false, cfFileResult="", fileName="", filePath="", mimeType="", message="", ext=""}>
 		<cftry>
 			<cfset validateFilePath(arguments.tempDirectory)>
 			<cfset validateFilePath(arguments.destination)>
@@ -37,15 +36,15 @@
 				<cfif NOT Len(arguments.defaultExtension)>
 					<cfthrow message="Client did not supply a file extension, and the defaultExtension was not defined.">
 				<cfelse>
-					<cfset ext = arguments.defaultExtension>
+					<cfset result.ext = arguments.defaultExtension>
 				</cfif>
 			<cfelse>
-				<cfset ext = result.cfFileResult.serverFileExt>
+				<cfset result.ext = result.cfFileResult.serverFileExt>
 			</cfif>
 			<!--- check the file extension list --->
-			<cfset result.validExtension = ListFindNoCase(arguments.extensions, ext) NEQ 0>
+			<cfset result.validExtension = ListFindNoCase(arguments.extensions, result.ext) NEQ 0>
 			<cfif NOT result.validExtension>
-				<cfthrow message="Attempt to upload file with Extension #xmlFormat(ext)#" detail="Client File: #result.cfFileResult.clientFile# Server File: #result.cfFileResult.serverFile#">
+				<cfthrow message="Attempt to upload file with Extension #xmlFormat(result.ext)#" detail="Client File: #result.cfFileResult.clientFile# Server File: #result.cfFileResult.serverFile#">
 			</cfif>
 
 			<!--- check file type --->
@@ -56,20 +55,20 @@
 				<cfset result.mimeType = result.cfFileResult.contentType & "/" & result.cfFileResult.contentSubType>
 			</cfif>
 
-			<cfset result.validType = validateFileType(filePath=getServerFilePath(result.cfFileResult), fileExt=ext, type=arguments.type)>
+			<cfset result.validType = validateFileType(filePath=getServerFilePath(result.cfFileResult), fileExt=result.ext, type=arguments.type)>
 			<cfif NOT result.validType>
-				<cfthrow message="Attempt to upload file with Extension #xmlFormat(ext)# type check failed." detail="Mime Type: #result.mimeType#">
+				<cfthrow message="Attempt to upload file with Extension #xmlFormat(result.ext)# type check failed." detail="Mime Type: #result.mimeType#">
 			</cfif>
 
 			<cfif Len(arguments.destinationFileName)>
 				<cfif find(".", arguments.destinationFileName)>
 					<cfset result.fileName = arguments.destinationFileName>
 				<cfelse>
-					<cfset result.fileName = arguments.destinationFileName & "." & ext>
+					<cfset result.fileName = arguments.destinationFileName & "." & result.ext>
 				</cfif>
 			<cfelse>
 				<cfif arguments.nameconflict IS "random">
-					<cfset result.fileName = generateRandomFileName() & "." & ext>
+					<cfset result.fileName = generateRandomFileName() & "." & result.ext>
 				<cfelse>
 					<cfset result.fileName = result.cfFileResult.serverFile>
 				</cfif>
@@ -84,7 +83,7 @@
 					<cfelse>
 						<cfset local.i = 0>
 						<cfloop condition="#FileExists(result.filePath)#">
-							<cfset result.fileName = generateRandomFileName() & "." & ext>
+							<cfset result.fileName = generateRandomFileName() & "." & result.ext>
 							<cfset result.filePath = arguments.destination & result.fileName>
 							<cfset local.i = local.i + 1>
 							<cfif local.i GT 100>
@@ -137,9 +136,22 @@
 			<cfset arguments.message = arguments.message & "[Upload Exception] " & arguments.exception.message & " " & arguments.exception.detail>
 		</cfif>
 		<cfif variables.supportsCallStackGet>
-			<cfset arguments.message = arguments.message & " CallStack: " & serializeJSON(callStackGet())>
+			<cfset arguments.message = arguments.message & " CallStack: [" & arrayToList(callStackReFormat(callStackGet())) & "]">
 		</cfif>
 		<cflog type="#arguments.type#" text="#arguments.message# -- #cgi.remote_addr# #cgi.user_agent# #cgi.script_name#" file="uploads">
+	</cffunction>
+
+	<cffunction name="callStackReFormat">
+		<cfargument name="callStack" default="#callStackGet()#">
+		<cfset var newCallStack = []>
+		<cfset var s = "">
+		<cfloop array="#arguments.callStack#" index="s">
+			<cfif LCase(s.function) IS "logger">
+				<cfcontinue>
+			</cfif>
+			<cfset arrayAppend(newCallStack, Trim(s.function & " (" & s.Template & ":" & s.LineNumber & ")"))>
+		</cfloop>
+		<cfreturn newCallStack>
 	</cffunction>
 
 	<cffunction name="getServerFilePath" hint="Returns the file path including directory and file name when you pass the cffile struct.">

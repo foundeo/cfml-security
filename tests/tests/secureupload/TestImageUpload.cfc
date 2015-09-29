@@ -7,7 +7,7 @@ component displayName="Test Upload" extends="BaseTest" {
 		$assert.isTrue(result.success, "success should be true");
 		$assert.isTrue(result.validExtension, "validExtension should be true");
 		$assert.isTrue(result.validType, "validType should be true");
-		
+		$assert.isEqual(result.ext, "png", "ext should be png");
 		$assert.isTrue(result.deletedUploadedFile, "deletedUploadedFile should be true");
 
 	}
