@@ -32,6 +32,10 @@ A boolean that will only be `true` if the file uploaded and moved to the `destin
 
 A boolean that will only be `true` if the uploaded file is in the `extensions` list.
 
+##### validType
+
+A boolean that will be `false` if the uploaded file fails the type check. It will return `true` if there is no type check for a given file type, for example if you have `extensions="mov,png,jpg", type="auto"` and the user uploads a `.mov` file then `validType=true` beacuse there is currently no type check for `mov` files.  
+
 ##### filePath
 
 The full file path including the directory and full file name.
@@ -39,6 +43,10 @@ The full file path including the directory and full file name.
 ##### fileName
 
 The file name including the extension.
+
+##### ext
+
+The extension (not including a dot) of the file, eg "png"
 
 ##### cfFileResult
 
@@ -85,3 +93,25 @@ If no file extension is supplied by the client, use this. If this value is empty
 ##### destinationFileName
 
 Specify the name of the file. If you omit the file extension the uploaded file extension will be used (must be in extensions argument list).
+
+
+## Custom Type Checking
+
+If you want to add a `type` check that is not currently supported, you can make the change directly to the CFC and submit a pull request, or extend the `secureupload` CFC and implement the `validateFileType(filePath, fileExt, type)` function.
+
+For Example:
+
+```
+<cfcomponent extends="secureupload">
+	<cffunction name="validateFileType" hint="Checks file type">
+			<cfargument name="filePath">
+			<cfargument name="fileExt" default="#listLast(arguments.filePath, ".")#">
+			<cfargument name="type" default="auto" hint="image, pdf, html, spreadsheet, auto">
+			<cfif arguments.fileExt IS "mov" OR arguments.type IS "movie"> 
+				<!--- my code to validate it --->
+			<cfelse>
+				<cfreturn super.validateFileType(arguments.filePath, arguments.fileExt, arguments.type)>
+			</cfif>
+	</cffunction>
+</cfargument> 
+```
