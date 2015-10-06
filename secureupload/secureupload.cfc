@@ -14,6 +14,7 @@
 		<cfargument name="destinationFileName" default="" hint="Specify the name of the file. If you omit the file extension the uploaded file extension will be used (must be in extensions argument list).">
 
 		<cfset var result = {success=false, validExtension=false, validType=false, cfFileResult="", fileName="", filePath="", mimeType="", message="", ext=""}>
+		<cfset var tempNameConflict = "makeunique">
 		<cftry>
 			<cfset validateFilePath(arguments.tempDirectory)>
 			<cfset validateFilePath(arguments.destination)>
@@ -28,8 +29,12 @@
 				<cfthrow message="You must specify a list of file extensions to whitelist. eg, extensions=jpg,png">
 			</cfif>
 
+			<cfif arguments.nameconflict IS "overwrite">
+				<cfset tempNameConflict = "overwrite">
+			</cfif>
+
 			<!--- upload the file --->
-			<cffile action="upload" destination="#arguments.tempDirectory#" nameconflict="makeunique" result="result.cfFileResult">
+			<cffile action="upload" destination="#arguments.tempDirectory#" nameconflict="#tempNameConflict#" result="result.cfFileResult">
 			
 			<!--- handle case if no file extension --->
 			<cfif NOT Len(result.cfFileResult.serverFileExt)>
