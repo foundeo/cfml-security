@@ -9,7 +9,6 @@ component displayName="Test Upload" extends="BaseTest" {
 		$assert.isTrue(result.validType, "validType should be true");
 		$assert.isEqual(result.ext, "png", "ext should be png");
 		$assert.isTrue(result.deletedUploadedFile, "deletedUploadedFile should be true");
-
 	}
 
 	function testFileNotImageType() {

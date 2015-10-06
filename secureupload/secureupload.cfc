@@ -173,8 +173,24 @@
 		<cfargument name="filePath">
 		<cfif arguments.filePath contains "..">
 			<cfthrow message="File path contained .. possible path traversal." detail="#arguments.filePath#">
-		<cfelseif ReFind("[^a-zA-Z0-9_ ./\\-]", arguments.filePath)>
-			<cfthrow message="File path contained a character other than: a-zA-Z0-9_ ./\-" detail="#arguments.filePath#">
+		</cfif>
+		<cfif LCase(Left(arguments.filePath,3)) IS "s3:">
+			<cfif arguments.filePath contains "@">
+				<cfif NOT ReFindNoCase("^s3://[a-zA-Z0-9]+:[a-zA-Z0-9]+@.*", arguments.filePath)>
+					<cfthrow message="Invalid s3 File Path" detail="#arguments.filePath#">
+				</cfif>
+				<!--- already validated first part of path so trim it off --->
+				<cfset arguments.filePath = ReReplaceNoCase(arguments.filePath, "^s3://[a-zA-Z0-9]+:[a-zA-Z0-9]+@", "")>
+			<cfelse>
+				<cfset arguments.filePath = ReReplaceNoCase(arguments.filePath, "^s3:", "")>
+			</cfif>
+		<cfelseif LCase(Left(arguments.filePath, 4)) IS "ram:">
+			<cfset arguments.filePath = ReReplaceNoCase(arguments.filePath, "^ram:", "")>
+		</cfif>
+		<cfif ReFind("[^a-zA-Z0-9:_ ./\\-]", arguments.filePath)>
+			<cfthrow message="File path contained a character other than: a-zA-Z0-9:_ ./\-" detail="#arguments.filePath#">
+		<cfelseif Len(arguments.filePath) GT 2 AND Find(":", arguments.filePath, 3)>
+			<cfthrow message="File path had a colin after position 2." detail="#arguments.filePath#">
 		</cfif>
 		<cfreturn true>
 	</cffunction>

@@ -38,6 +38,10 @@ component extends="testbox.system.BaseSpec" {
 		return ExpandPath("/tests/secureupload/assets/" & arguments.fileName);
 	}
 
+	function getNewSecureUploadInstance() {
+		return new secureupload.secureupload();
+	}
+
 
 	
 
