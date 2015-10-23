@@ -192,7 +192,7 @@
 		<cfelseif LCase(Left(arguments.filePath, 4)) IS "ram:">
 			<cfset arguments.filePath = ReReplaceNoCase(arguments.filePath, "^ram:", "")>
 		</cfif>
-		<cfif ReFind("[^a-zA-Z0-9:_ ./\\-]", arguments.filePath)>
+		<cfif ReFind("[^a-zA-Z0-9:\$_ ./\\-]", arguments.filePath)>
 			<cfthrow message="File path contained a character other than: a-zA-Z0-9:_ ./\-" detail="#arguments.filePath#">
 		<cfelseif Len(arguments.filePath) GT 2 AND Find(":", arguments.filePath, 3)>
 			<cfthrow message="File path had a colin after position 2." detail="#arguments.filePath#">
