@@ -34,7 +34,7 @@
 			</cfif>
 
 			<!--- upload the file --->
-			<cffile action="upload" destination="#arguments.tempDirectory#" nameconflict="#tempNameConflict#" result="result.cfFileResult">
+			<cffile action="upload" fileField="#arguments.fileField#" destination="#arguments.tempDirectory#" nameconflict="#tempNameConflict#" result="result.cfFileResult">
 			
 			<!--- handle case if no file extension --->
 			<cfif NOT Len(result.cfFileResult.serverFileExt)>
