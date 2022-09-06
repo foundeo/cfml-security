@@ -143,7 +143,7 @@
 		<cfif variables.supportsCallStackGet>
 			<cfset arguments.message = arguments.message & " CallStack: [" & arrayToList(callStackReFormat(callStackGet())) & "]">
 		</cfif>
-		<cflog type="#arguments.type#" text="#arguments.message# -- #cgi.remote_addr# #cgi.user_agent# #cgi.script_name#" file="uploads">
+		<cflog type="#arguments.type#" text="#arguments.message# -- #cgi.remote_addr# #cgi.http_user_agent# #cgi.script_name#" file="uploads">
 	</cffunction>
 
 	<cffunction name="callStackReFormat">
